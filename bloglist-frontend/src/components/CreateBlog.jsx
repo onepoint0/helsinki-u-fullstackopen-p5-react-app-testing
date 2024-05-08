@@ -18,13 +18,13 @@ const CreateBlog = ({addBlog,notification}) => {
 
   return (
     <form onSubmit={handleAddBlog}>
-      <label htmlFor='newBlogTitle'>title</label>
-      <input id='newBlogTitle' onChange={(e) => setTitle(e.target.value)} value={title}/><br/>
-      <label htmlFor='newBlogAuthor'>author</label>
-      <input id='newBlogAuthor' onChange={(e) => setAuthor(e.target.value)} value={author}/><br/>
-      <label htmlFor='newBlogURL'>url</label>
-      <input id='newBlogURL' onChange={(e) => setUrl(e.target.value)} value={url}/><br/>
-      <button type="submit">create</button>
+      <div className='row'><label htmlFor='newBlogTitle'>title</label>
+      <input id='newBlogTitle' onChange={({target}) => setTitle(target.value)} value={title}/></div>
+      <div className='row'><label htmlFor='newBlogAuthor'>author</label>
+      <input id='newBlogAuthor' onChange={({target}) => setAuthor(target.value)} value={author}/></div>
+      <div className='row'><label htmlFor='newBlogURL'>url</label>
+      <input id='newBlogURL' onChange={({target}) => setUrl(target.value)} value={url}/></div>
+      <div className='row'><button type="submit">create</button></div>
     </form>
   )
 }

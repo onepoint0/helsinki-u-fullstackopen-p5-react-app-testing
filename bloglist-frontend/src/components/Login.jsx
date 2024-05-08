@@ -4,12 +4,14 @@ const Login = ({handleSubmit,setPassword,setUsername,username,password}) => {
         <>
             <h1>log into application</h1>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username</label>
-                <input type="text" id="username" onChange={(e) => setUsername(e.target.value)} value={username} />      
-                <br/>
-                <label htmlFor="password">Password </label>
-                <input type="password" id="password" onChange={(e) => setPassword(e.target.value)} value={password} />
-                <br/>
+                <div className="row">
+                    <label htmlFor="username">Username</label>
+                    <input type="text" id="username" onChange={({target}) => setUsername(target.value)} value={username} />      
+                </div>
+                <div className="row">
+                    <label htmlFor="password">Password </label>
+                    <input type="password" id="password" onChange={({target}) => setPassword(target.value)} value={password} />
+                </div>
                 <button type="submit">login</button>
             </form>
         </>

@@ -27,8 +27,11 @@ const App = () => {
 
   useEffect(() => {
     const loggedIn = JSON.parse(window.localStorage.getItem(localStorageUserKey))
-    setUser(loggedIn)
-    blogService.setToken(loggedIn.token)
+    console.log('logged in? ',loggedIn)
+    if (loggedIn) {
+      setUser(loggedIn)
+      blogService.setToken(loggedIn.token)
+    }
   },[])
 
   // console.log('username - ',username,password,user)
@@ -90,7 +93,7 @@ const App = () => {
       <h1>Blogs</h1>
       {user && <h2>{user.username} logged in<button type="button" onClick={handleLogout}>logout</button></h2>}
 
-      <Message message={message}s />
+      <Message message={message} />
 
       {!user ?
           <Login 
@@ -103,16 +106,9 @@ const App = () => {
           : 
           <>
             <Toggle showText='add blog' hideText='cancel'>
-            <CreateBlog 
-              addBlog={handleAddBlog} 
-              notification={notification}
-              // title={title}
-              // setTitle={setTitle} 
-              // author={author} 
-              // setAuthor={setAuthor}
-              // url={url} 
-              // setUrl={setUrl}
-            />
+              <CreateBlog 
+                addBlog={handleAddBlog} 
+                notification={notification} />
             </Toggle>
             {showBlogs()}
           </>

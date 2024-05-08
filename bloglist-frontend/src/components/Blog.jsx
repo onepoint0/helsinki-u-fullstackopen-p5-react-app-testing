@@ -1,5 +1,5 @@
 const Blog = ({ blog }) => (
-  <div>
+  <div className="row">
     {blog.title} {blog.author}
   </div>  
 )
