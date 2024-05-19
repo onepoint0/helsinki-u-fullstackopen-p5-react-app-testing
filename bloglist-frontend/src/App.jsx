@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect,useRef } from 'react'
 import Blog from './components/Blog'
 import Toggle from './components/Toggle'
 import CreateBlog from './components/CreateBlog'
@@ -10,19 +10,21 @@ import Message from './components/Message'
 import './assets/main.css'
 
 const App = () => {
+
   const localStorageUserKey = 'blogAppUser'
   const [blogs, setBlogs] = useState([])
   const [user,setUser] = useState(null)
   const [username,setUsername] = useState('')
   const [password,setPassword] = useState('')
   const [message,setMessage] = useState([])
+  const blogFormRef = useRef()
 
   useEffect(() => {
     console.log('get blogs')
 
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -30,7 +32,8 @@ const App = () => {
     console.log('logged in? ',loggedIn)
     if (loggedIn) {
       setUser(loggedIn)
-      blogService.setToken(loggedIn.token)
+      // blogService.setToken(loggedIn.token)
+      blogService.setAuthHeader(loggedIn.token)
     }
   },[])
 
@@ -43,17 +46,17 @@ const App = () => {
     },5000)
   }
 
-  const handleSubmit = async e => {
+  const handleLogin = async e => {
     e.preventDefault()
     console.log('handle submit')
 
     try {
-      const loggedInUser = await loginService.login({username,password})
+      const loggedInUser = await loginService.login({ username,password })
       console.log('logged in user ',loggedInUser)
 
       if (loggedInUser) {
         window.localStorage.setItem(localStorageUserKey,JSON.stringify(loggedInUser))
-        blogService.setToken(loggedInUser.token)
+        blogService.setAuthHeader(loggedInUser.token)
         setUser(loggedInUser)
         setPassword('')
         setUsername('')
@@ -61,58 +64,86 @@ const App = () => {
       }
 
     } catch(err) {
-      console.log('error logging in ',err)
-      notification(`logged failed`,'error')
+      console.log('error logging in ',err.response.data.error)
+      notification(err.response.data.error,'error')
     }
   }
 
   const handleLogout = () => {
     window.localStorage.removeItem(localStorageUserKey)
-    blogService.setToken('')
+    blogService.setAuthHeader('')
     setUser(null)
 
   }
 
   const handleAddBlog = async newBlogObject => {
     const newBlog = await blogService.create(newBlogObject)
-    console.log('new blog = ',newBlog)
+    blogFormRef.current.setShow()
+    console.log('new blog = ',newBlog,user)
+    newBlog.user = {
+      name: user.name,
+      username: user.username
+    }
     const newBlogs = blogs.concat(newBlog)
     setBlogs(newBlogs)
-    // notification(`A new blog "${title}" by "${author}" added`,'success')
 
   }
 
-  const showBlogs = () => (
-    blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} />
+  const handleRemoveBlog = async blogID => {
+    const deleted = await blogService.remove(blogID)
+    console.log('deleted blog? ',deleted)
+    setBlogs(blogs.filter(b => b.id !== blogID))
+  }
+
+  const handleLike = async (blog) => {
+    await blogService.update({
+      'id':   blog.id,
+      'title':  blog.title,
+      'author': blog.author,
+      'url':  blog.url,
+      'likes':  blog.likes + 1,
+      'user':   blog.id
+    })
+
+    const updatedBlogs = blogs.map( b => b.id !== blog.id ? b : { ...b, likes: b.likes+1 } )
+    setBlogs(updatedBlogs)
+  }
+
+  const showBlogs = () => {
+    blogs.sort((a,b) => b.likes - a.likes)
+    console.log('uname ',user.username)
+    return (
+      blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} username={user.username} remove={handleRemoveBlog}/>
+      )
     )
-  )
+  }
 
   return (
     <div>
       <h1>Blogs</h1>
-      {user && <h2>{user.username} logged in<button type="button" onClick={handleLogout}>logout</button></h2>}
+      {user && <h2 className='display-flex'>{user.username} logged in &nbsp; <button type="button" onClick={handleLogout}>logout</button></h2>}
 
       <Message message={message} />
 
       {!user ?
-          <Login 
-            handleSubmit={handleSubmit} 
-            setPassword={setPassword} 
-            setUsername={setUsername} 
-            username={username} 
-            password={password} 
-            /> 
-          : 
-          <>
-            <Toggle showText='add blog' hideText='cancel'>
-              <CreateBlog 
-                addBlog={handleAddBlog} 
-                notification={notification} />
-            </Toggle>
-            {showBlogs()}
-          </>
-        } 
+        <Login
+          handleLogin={handleLogin}
+          setPassword={setPassword}
+          setUsername={setUsername}
+          username={username}
+          password={password}
+        />
+        :
+        <>
+          <Toggle showText='add blog' hideText='cancel' ref={blogFormRef}>
+            <CreateBlog
+              addBlog={handleAddBlog}
+              notification={notification} />
+          </Toggle>
+          {showBlogs()}
+        </>
+      }
     </div>
   )
 }

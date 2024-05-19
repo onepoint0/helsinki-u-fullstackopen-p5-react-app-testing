@@ -14,19 +14,20 @@ li {
     border-radius: 5px;
     font-weight: 600;
     max-width: 400px;
-    margin-bottom: 7px;
 }
 
 .error {
     background-color: lightgray;
     border: 2px red solid;
     color: red;
+    margin-bottom: 7px;
 }
 
 .success {
     background-color: lightgray;
     border: 2px green solid;
     color: green;
+    margin-bottom: 7px;
 }
 label {
     display: inline-block;
@@ -36,6 +37,15 @@ label {
 .row {
     margin-bottom: 7px;
 }
+.blog-row {
+    border: solid 1px black;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.blog-row div {
+    padding: 5px 0;
+    border-bottom: lightgray 1px solid;
+}
 ul {
     max-width: 350px;
 }
@@ -43,4 +53,13 @@ ul {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+}
+
+.display-flex {
+    display: flex;
+}
+.remove {
+    background-color: lightblue;
+    border: 1px solid blue;
+    color: blue;
 }

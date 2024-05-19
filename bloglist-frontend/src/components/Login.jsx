@@ -1,21 +1,32 @@
-const Login = ({handleSubmit,setPassword,setUsername,username,password}) => {
+import PropTypes from 'prop-types'
 
-    return (
-        <>
-            <h1>log into application</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="row">
-                    <label htmlFor="username">Username</label>
-                    <input type="text" id="username" onChange={({target}) => setUsername(target.value)} value={username} />      
-                </div>
-                <div className="row">
-                    <label htmlFor="password">Password </label>
-                    <input type="password" id="password" onChange={({target}) => setPassword(target.value)} value={password} />
-                </div>
-                <button type="submit">login</button>
-            </form>
-        </>
-    )
-    
+const Login = ({ handleLogin,setPassword,setUsername,username,password }) => {
+
+  return (
+    <>
+      <h1>log into application</h1>
+      <form onSubmit={handleLogin}>
+        <div className="row">
+          <label htmlFor="username">Username</label>
+          <input type="text" id="username" onChange={({ target }) => setUsername(target.value)} value={username} />
+        </div>
+        <div className="row">
+          <label htmlFor="password">Password </label>
+          <input type="password" id="password" onChange={({ target }) => setPassword(target.value)} value={password} />
+        </div>
+        <button className="row" type="submit">login</button>
+      </form>
+    </>
+  )
+
 }
+
+Login.propTypes = {
+  handleLogin: PropTypes.func.isRequired,
+  setPassword: PropTypes.func.isRequired,
+  setUsername: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+  password: PropTypes.string.isRequired,
+}
+
 export default Login

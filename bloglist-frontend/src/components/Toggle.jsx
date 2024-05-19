@@ -1,15 +1,27 @@
-import { useState } from 'react'
+import { forwardRef, useImperativeHandle, useState } from 'react'
+import PropTypes from 'prop-types'
 
-const Toggle = (props) => {
-    const [show,setShow] = useState(false)
-    return (
-        <div>
-            { show && props.children}
-            <button onClick={() => setShow(!show)}>
-                {show ? props.hideText : props.showText}
-            </button>
-        </div>
-    )
+const Toggle = forwardRef((props,refs) => {
+  const [show,setShow] = useState(false)
+
+  useImperativeHandle(refs,() => {return { setShow }})
+
+  return (
+    <div>
+      { show && props.children}
+      <button className="row" onClick={() => setShow(!show)}>
+        {show ? props.hideText : props.showText}
+      </button>
+    </div>
+  )
+})
+
+Toggle.displayName = 'Toggle'
+
+Toggle.propTypes = {
+  showText: PropTypes.string.isRequired,
+  hideText: PropTypes.string.isRequired
 }
+
 
 export default Toggle
