@@ -11,6 +11,11 @@ module.exports = {
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
+  'globals': {
+    'vi': true,
+    'expect': true,
+    'test': true
+  },
   rules: {
     'react-refresh/only-export-components': [
       'warn',
