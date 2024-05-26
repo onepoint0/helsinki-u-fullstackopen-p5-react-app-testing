@@ -8,13 +8,13 @@ const Login = ({ handleLogin,setPassword,setUsername,username,password }) => {
       <form onSubmit={handleLogin}>
         <div className="row">
           <label htmlFor="username">Username</label>
-          <input type="text" id="username" onChange={({ target }) => setUsername(target.value)} value={username} />
+          <input data-testid="username" type="text" id="username" onChange={({ target }) => setUsername(target.value)} value={username} />
         </div>
         <div className="row">
           <label htmlFor="password">Password </label>
-          <input type="password" id="password" onChange={({ target }) => setPassword(target.value)} value={password} />
+          <input data-testid="password" type="password" id="password" onChange={({ target }) => setPassword(target.value)} value={password} />
         </div>
-        <button className="row" type="submit">login</button>
+        <button data-testid="login-button" className="row" type="submit">login</button>
       </form>
     </>
   )
