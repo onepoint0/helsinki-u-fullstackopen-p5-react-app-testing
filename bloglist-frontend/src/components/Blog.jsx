@@ -23,9 +23,11 @@ const Blog = ({ blog,handleLike,username,remove }) => {
   }
 
   return (
-    <div className="blog-row">
-      <div className='blog'>{blog.title} {blog.author} &nbsp; <button className='viewBlogButton' onClick={() => setShowDetails(!showDetails)}> {showDetails ? 'Hide' : 'View'}</button></div>
-      {showDetails && <BlogDetails />}
+    <div data-testid='testBlogList' className='blog-list'>
+      <div className="blog-row">
+        <div className='blog'>{blog.title} {blog.author} &nbsp; <button className='viewBlogButton' onClick={() => setShowDetails(!showDetails)}> {showDetails ? 'Hide' : 'View'}</button></div>
+        {showDetails && <BlogDetails />}
+      </div>
     </div>
   )
 }

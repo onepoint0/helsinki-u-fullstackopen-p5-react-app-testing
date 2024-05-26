@@ -136,7 +136,7 @@ const App = () => {
         />
         :
         <>
-          <Toggle showText='add blog' hideText='cancel' ref={blogFormRef}>
+          <Toggle dataTestId='addBlogButton' showText='add blog' hideText='cancel' ref={blogFormRef}>
             <CreateBlog
               addBlog={handleAddBlog}
               notification={notification} />

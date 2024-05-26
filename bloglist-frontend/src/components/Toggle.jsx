@@ -9,7 +9,7 @@ const Toggle = forwardRef((props,refs) => {
   return (
     <div>
       { show && props.children}
-      <button className="row" onClick={() => setShow(!show)}>
+      <button data-testid={ props.dataTestId ? props.dataTestId : null} className="row" onClick={() => setShow(!show)}>
         {show ? props.hideText : props.showText}
       </button>
     </div>
