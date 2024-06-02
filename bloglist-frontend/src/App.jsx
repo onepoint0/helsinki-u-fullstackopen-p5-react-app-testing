@@ -79,12 +79,13 @@ const App = () => {
   const handleAddBlog = async newBlogObject => {
     const newBlog = await blogService.create(newBlogObject)
     blogFormRef.current.setShow()
-    console.log('new blog = ',newBlog,user)
+
     newBlog.user = {
       name: user.name,
       username: user.username
     }
     const newBlogs = blogs.concat(newBlog)
+
     setBlogs(newBlogs)
 
   }
@@ -113,9 +114,11 @@ const App = () => {
     blogs.sort((a,b) => b.likes - a.likes)
     console.log('uname ',user.username)
     return (
-      blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLike={handleLike} username={user.username} remove={handleRemoveBlog}/>
-      )
+      <div data-testid='testBlogList' className='blog-list'>
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} handleLike={handleLike} username={user.username} remove={handleRemoveBlog}/>
+        )}
+      </div>
     )
   }
 
@@ -136,7 +139,7 @@ const App = () => {
         />
         :
         <>
-          <Toggle dataTestId='addBlogButton' showText='add blog' hideText='cancel' ref={blogFormRef}>
+          <Toggle showText='add blog' hideText='cancel' ref={blogFormRef}>
             <CreateBlog
               addBlog={handleAddBlog}
               notification={notification} />

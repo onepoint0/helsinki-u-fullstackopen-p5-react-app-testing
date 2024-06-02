@@ -14,7 +14,7 @@ const Blog = ({ blog,handleLike,username,remove }) => {
     return (
       <>
         <div>{blog.url}</div>
-        <div>{blog.likes} &nbsp; <button onClick={() => handleLike(blog)}>like</button></div>
+        <div data-testid="like-button">{blog.likes} &nbsp; <button onClick={() => handleLike(blog)}>like</button></div>
         <div>{blog.user.name}</div>
         {blog.user.username === username && <button className='remove' onClick={handleRemove}>Remove</button>}
       </>
@@ -23,11 +23,9 @@ const Blog = ({ blog,handleLike,username,remove }) => {
   }
 
   return (
-    <div data-testid='testBlogList' className='blog-list'>
-      <div className="blog-row">
-        <div className='blog'>{blog.title} {blog.author} &nbsp; <button className='viewBlogButton' onClick={() => setShowDetails(!showDetails)}> {showDetails ? 'Hide' : 'View'}</button></div>
-        {showDetails && <BlogDetails />}
-      </div>
+    <div className="blog-row">
+      <div className='blog'>{blog.title} {blog.author} &nbsp; <button className='viewBlogButton' onClick={() => setShowDetails(!showDetails)}> {showDetails ? 'Hide' : 'View'}</button></div>
+      {showDetails && <BlogDetails />}
     </div>
   )
 }
