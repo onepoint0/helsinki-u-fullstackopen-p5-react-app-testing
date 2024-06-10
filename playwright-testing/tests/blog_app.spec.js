@@ -1,5 +1,4 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-import exp from 'constants'
 import { createBlog, getLoginForm, login, logout, createBlogAndView,likeBlog } from './helper'
 
 const user1 = {
@@ -30,6 +29,8 @@ const testBlog2 = {
 const blogListing1 = new RegExp(`^${testBlog1.title}\\s+${testBlog1.author}`);
 const blogListing2 = new RegExp(`^${testBlog2.title}\\s+${testBlog2.author}`);
 
+test.describe.configure({ mode: 'serial' });
+
 describe('Blog app', () => {
     beforeEach(async({ page, request })=> {
         await request.post('http://localhost:3001/api/testing/reset')
@@ -48,18 +49,11 @@ describe('Blog app', () => {
     describe('login', () => {
 
         test('succeeds with correct credentials', async({ page }) => {
-            // await page.getByTestId('username').fill(user.username)
-            // await page.getByTestId('password').fill('password')
-            // await page.getByTestId('login-button').click()
-            
             await login(page,user1.username,user1.password)
             await expect(page.getByTestId('notification')).toHaveText(`${user1.username} logged in`)
         })
         
         test('fails with incorrect credentials', async({ page }) => {
-            // await page.getByTestId('username').fill(user.username)
-            // await page.getByTestId('password').fill('wrongpassword')
-            // await page.getByTestId('login-button').click()
             await login(page,user1.username,'wrongpassword')
             await expect(page.getByTestId('notification')).toHaveText(`Invalid username or password`)
         })
@@ -71,35 +65,33 @@ describe('Blog app', () => {
         })
 
         test('a new blog can be created ', async({ page }) => {
-            const blog = await createBlog( page, testBlog1.title, testBlog1.author, testBlog1.url)
+            const blog = await createBlog( page, testBlog1)
 
-            const text = `${testBlog1.title}\n${testBlog1.author}`
-            await expect(blog).toContainText(text)
+            await expect(blog).toBeVisible()
         })
         test('a new blog can be liked',async ({ page })=> {
 
             await createBlogAndView(page, testBlog1)
 
-            // const likeButton = await page.getByText('like')
             const likeButton = await page.getByRole('button',{name: 'like'})
 
-            await likeButton.click()
+            await likeBlog(likeButton,0)
 
             const likes = await likeButton.locator('..')
             await expect(likes).toContainText(/^1\s+like/)
 
         })
-        test('a blog post can be removed', async({ page }) => {
+        test('a blog post can be removed by the user who created it', async({ page }) => {
             await createBlogAndView(page,testBlog1)
 
-            const blogThere = await page.getByText(blogListing1)
+            const blogThere = await page.getByText(`${testBlog1.title} ${testBlog1.author}`)
             await expect(blogThere).toBeVisible()
 
             page.on('dialog', dialog => dialog.accept());
 
             await page.getByText('Remove').click()
 
-            const blogGone = await page.getByText(blogListing1)
+            const blogGone = await page.getByText(`${testBlog1.title} ${testBlog1.author}`)
             await expect(blogGone).not.toBeVisible()
         })
         test('delete button is only visible to the user who added the blog', async ({ page }) => {
@@ -113,7 +105,7 @@ describe('Blog app', () => {
 
             await expect(page.getByTestId('notification')).toHaveText(`${user2.username} logged in`)
 
-            const blog = await page.getByText(blogListing1)
+            const blog = await page.getByText(`${testBlog1.title} ${testBlog1.author}`)
             await expect(blog).toContainText(testBlog1.title)
 
             await page.getByRole('button',{name: 'View'}).click()
@@ -121,58 +113,36 @@ describe('Blog app', () => {
             // first make sure the view has opened successfully
             await expect(blog).toContainText('Hide')
 
-            removeButton = page.getByRole('button',{name: 'Remove'})
+            removeButton = await page.getByRole('button',{name: 'Remove'})
 
             await expect(removeButton).not.toBeVisible()
             
         })
-        test.only('blogs are rearranged in descending order by number of likes', async ({ page }) =>{
+        test('blogs are rearranged in descending order by number of likes', async ({ page }) =>{
             const blog1 = await createBlogAndView(page,testBlog1)
             const blog2 = await createBlogAndView(page,testBlog2)
 
-            let likeButtons = await page.getByRole('button',{name: 'like'}).all()
-            await likeButtons[1].click()
+            const blogs = await page.locator('.blog').all()
 
-            const first = await page.locator('.blog').first()
-            const last =  await page.locator('.blog').last()
-            await expect(first).toContainText(blogListing2)
-            await expect(last).toContainText(blogListing1)
+            const blog1LikeButton = blog1.locator('..').getByRole('button',{name: 'like'})
+            await expect(blog1LikeButton).toBeVisible()
 
-            await likeBlog(page,1,1)
-            await likeBlog(page,1,1)
+            const blog2LikeButton = blog2.locator('..').getByRole('button',{name: 'like'})
+            await expect(blog2LikeButton).toBeVisible()
 
-            // likeButtons = await page.getByRole('button',{name: 'like'}).all()
-            // await likeButtons[1].click()
-            // likeButtons = await page.getByRole('button',{name: 'like'}).all()
-            // await likeButtons[1].click()
+            console.log('like b2 ')
+            await likeBlog(blog2LikeButton,0)
 
-            // await expect(first).toContainText(blogListing1)
+            // blog 2 should be at top
+            await expect(blogs[0]).toContainText(`${testBlog2.title} ${testBlog2.author}`)
 
-            // const 
-            // await expect()
+            // change order to blog 1 first and test in case initial order was a fluke
+            await likeBlog(blog1LikeButton,0)
+            await likeBlog(blog1LikeButton,1)
 
-            // const blog2LikeButton = await page.getByRole('button',{name: 'like'})
-            // await blog2LikeButton.click()
-
-            // // blog 2 should be first - this is baseline as we don't assume they are in the order they are created, altho they prob are!
-            // let first = await page.locator('.blog').first()
-            // console.log('first = ',first)
-            // await expect(first).toContainText(blogListing2)
-
-            // // now blog 2 has one like, so to become first, blog 1 needs 2 x likes
-            // await blog1.getByRole('button',{name:'View'})
-            // const blog1LikeButton = await blog1.getByRole('button',{name: 'like'})
-            // blog1LikeButton.click()
-            // blog1LikeButton.click() 
-
-            // first = await page.locator('.blog').first()
-
-            // await expect(first).toContainText(blogListing1)
-            // blogs[0].getByText(blogListing1)
-            
-            // first = await page.locator('.blog').first()
-            // await expect(first).toContainText(blogListing1)
-
+            // blog 1 should be at top
+            await expect(blogs[0]).toContainText(`${testBlog1.title} ${testBlog1.author}`)
         })
+
     })
 })

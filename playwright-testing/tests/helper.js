@@ -1,4 +1,5 @@
-const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { expect } = require('@playwright/test')
+
 const getLoginForm = async (page) => {
   const username = await page.getByTestId('username')
   const password = await page.getByTestId('password')
@@ -18,68 +19,34 @@ const logout = async (page) => {
   await page.getByRole('button', { name: 'logout' }).click()
 }
 
-const createBlog1 = async ( page, blog ) => {
-  // this button is in toggle and changes its functionality, don't use a testid here or you'll get bugs
-  const addBlog = await page.getByRole('button',{name: 'add blog'}) 
-  console.log('expecting add blog button tbv')
-console.log('type ',typeof(addBlog))
-  await expect(addBlog).toBeVisible()
-  await addBlog.click()
-  const title = await page.getByTestId('testBlogTitle')
-
-  console.log('expecting title tbv')
-  await expect(title).toBeVisible()
-  await title.fill(blog.title)
-  // await page.getByTestId('testBlogTitle').fill(blog.title)
-  await page.getByTestId('testBlogAuthor').fill(blog.author)
-  await page.getByTestId('testBlogUrl').fill(blog.url)
-  await page.getByTestId('createButton').click()
-
-  const newBlog = await page.locator(`text=${blog.title}\n${blog.author}`) 
-
-  return newBlog
-}
-
-
 const createBlog = async ( page, blog ) => {
   // this button is in toggle and changes its functionality (switches between add blog and cancel in Toggle component)
   // don't use a testid here or you'll get bugs
+  // console.log('in create blog ',blog)
+
   await page.getByRole('button',{name: 'add blog'}).click() 
   await page.getByTestId('testBlogTitle').fill(blog.title)
   await page.getByTestId('testBlogAuthor').fill(blog.author)
   await page.getByTestId('testBlogUrl').fill(blog.url)
   await page.getByTestId('createButton').click()
 
-  const newBlog = await page.locator(`text=${blog.title}\n${blog.author}`).waitFor()
-
-  return newBlog
-}
-
-const likeBlog = async ( page, order, expected ) => {
-  const likeButtons = await page.getByRole('button',{name: 'like'}).all()
-  await likeButtons[order].click()
-
-  const numLikes = await likeButtons[order].locator('..')
-
-  const likes = new RegExp(`/^${expected}\s+like/`)
-  // const blogListing2 = new RegExp(`^${testBlog2.title}\\s+${testBlog2.author}`);
-
-  await expect(numLikes).toContainText(likes)
+  return page.getByText(`${blog.title} ${blog.author}`)
 
 }
 
 const createBlogAndView = async( page,blog) => {
   const newBlog = await createBlog( page, blog )
-  const view = await newBlog.getByText('View').waitFor()
+  const view = await newBlog.getByText('View')
   await view.click()
   
   return newBlog
 }
 
-const getChildButtonFromBlog = async (page,blog,buttonLabel) => {
-  const newBlog = await createBlogAndView(page,blog)
-  const button = await page.getByRole('button', {name: buttonLabel})
-  return button
+const likeBlog = async ( likeButton, initialLikes ) => {
+  await likeButton.click()
+  // I think these likes are clobbering each other when I click two in a row so wait til they resolve before doing another like
+  await expect(likeButton.locator('..')).toContainText(`${initialLikes + 1} like`)
+
 }
 
-export { getLoginForm, login, createBlog, createBlogAndView, logout, getChildButtonFromBlog, likeBlog }
+export { getLoginForm, login, createBlog, createBlogAndView, logout, likeBlog }
