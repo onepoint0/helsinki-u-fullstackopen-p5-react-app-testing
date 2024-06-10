@@ -22,7 +22,6 @@ const logout = async (page) => {
 const createBlog = async ( page, blog ) => {
   // this button is in toggle and changes its functionality (switches between add blog and cancel in Toggle component)
   // don't use a testid here or you'll get bugs
-  // console.log('in create blog ',blog)
 
   await page.getByRole('button',{name: 'add blog'}).click() 
   await page.getByTestId('testBlogTitle').fill(blog.title)

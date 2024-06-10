@@ -25,10 +25,6 @@ const testBlog2 = {
     url:    'http://secondtesturl.com'
 }
 
-// const blogListing1 = `${testBlog1.title}\s+${testBlog1.author}`
-const blogListing1 = new RegExp(`^${testBlog1.title}\\s+${testBlog1.author}`);
-const blogListing2 = new RegExp(`^${testBlog2.title}\\s+${testBlog2.author}`);
-
 test.describe.configure({ mode: 'serial' });
 
 describe('Blog app', () => {
@@ -130,7 +126,6 @@ describe('Blog app', () => {
             const blog2LikeButton = blog2.locator('..').getByRole('button',{name: 'like'})
             await expect(blog2LikeButton).toBeVisible()
 
-            console.log('like b2 ')
             await likeBlog(blog2LikeButton,0)
 
             // blog 2 should be at top
